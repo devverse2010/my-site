@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KEYFORGE — магазин клавиатур</title>
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700&family=Manrope:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#06060c;--ink:#f2f1ff;--mut:#8f8ca8;--line:rgba(255,255,255,.1);--a:#7c5cff;--b:#38e1ff;--card:rgba(20,18,36,.6)}
+*{box-sizing:border-box;margin:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font:400 16px/1.55 Manrope,system-ui,sans-serif;overflow-x:hidden}
+#gl{position:fixed;inset:0;width:100%;height:100%;z-index:0}
+main,footer{position:relative;z-index:2}
+h1,h2,h3,.logo{font-family:Unbounded,Manrope,sans-serif;font-weight:700;letter-spacing:-.02em}
+a{color:inherit;text-decoration:none}
+button{font:inherit;color:inherit;cursor:pointer;border:0;background:none}
+:focus-visible{outline:2px solid var(--b);outline-offset:3px}
+
+/* HEADER в стиле 21st.dev: плавающая «таблетка» */
+header{position:fixed;top:14px;left:50%;translate:-50% 0;z-index:50;width:min(1080px,calc(100% - 24px));
+ display:flex;align-items:center;justify-content:space-between;gap:16px;padding:8px 10px 8px 18px;
+ background:rgba(14,13,26,.55);backdrop-filter:blur(18px) saturate(1.4);-webkit-backdrop-filter:blur(18px) saturate(1.4);
+ border:1px solid var(--line);border-radius:999px;box-shadow:0 10px 40px rgba(0,0,0,.45),inset 0 1px 0 rgba(255,255,255,.08);transition:padding .4s,width .4s}
+header.small{width:min(760px,calc(100% - 24px))}
+.logo{display:flex;align-items:center;gap:10px;font-size:15px}
+.logo i{width:22px;height:22px;border-radius:7px;background:linear-gradient(135deg,var(--a),var(--b));transform:rotate(12deg);box-shadow:0 0 18px var(--a)}
+nav{display:flex;gap:4px;position:relative}
+nav a{padding:8px 14px;border-radius:999px;color:var(--mut);font-size:14px;font-weight:500;transition:color .2s,background .2s}
+nav a:hover{color:var(--ink);background:rgba(255,255,255,.07)}
+.hr{display:flex;align-items:center;gap:8px}
+.cartbtn{position:relative;display:flex;align-items:center;gap:8px;padding:10px 16px;border-radius:999px;background:var(--ink);color:#0a0a14;font-weight:700;font-size:14px;transition:transform .25s}
+.cartbtn:hover{transform:scale(1.05)}
+.cartbtn b{display:grid;place-items:center;min-width:20px;height:20px;border-radius:99px;background:var(--a);color:#fff;font-size:12px}
+@media(max-width:760px){nav{display:none}}
+
+/* HERO */
+.hero{min-height:100svh;display:grid;align-content:center;padding:120px 6vw 60px;perspective:900px}
+.hero h1{font-size:clamp(38px,8vw,112px);line-height:.98;max-width:12ch;transform-style:preserve-3d}
+.hero h1 span{display:inline-block;will-change:transform}
+.hero p{max-width:46ch;color:var(--mut);margin:26px 0 30px;font-size:18px}
+.cta{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+.btn{padding:15px 26px;border-radius:999px;font-weight:700;background:linear-gradient(135deg,var(--a),#a07bff);box-shadow:0 10px 40px -8px var(--a);transition:transform .25s,box-shadow .25s}
+.btn:hover{transform:translateY(-3px) scale(1.03);box-shadow:0 18px 50px -8px var(--a)}
+.btn.ghost{background:rgba(255,255,255,.06);border:1px solid var(--line);box-shadow:none}
+.sw{display:flex;gap:10px;align-items:center;margin-top:34px;color:var(--mut);font-size:14px}
+.sw button{width:30px;height:30px;border-radius:50%;border:2px solid transparent;transition:transform .25s,border-color .25s}
+.sw button:hover{transform:scale(1.2)}
+.sw button.on{border-color:#fff;transform:scale(1.15)}
+.hint{position:absolute;right:6vw;bottom:34px;color:var(--mut);font-size:13px}
+
+/* MARQUEE */
+.mq{overflow:hidden;border-block:1px solid var(--line);background:rgba(6,6,12,.6);backdrop-filter:blur(8px);padding:18px 0}
+.mq div{display:flex;gap:56px;width:max-content;font-family:Unbounded;font-size:20px;color:var(--mut)}
+.mq span{white-space:nowrap}.mq span:nth-child(even){color:var(--b)}
+
+/* SHOP */
+.card{display: grid;grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));gap: 20px;}
+section{padding:110px 6vw}
+.head{display:flex;justify-content:space-between;align-items:end;gap:20px;flex-wrap:wrap;margin-bottom:40px}
+.head h2{font-size:clamp(30px,5vw,60px);line-height:1.05;max-width:14ch}
+.chips{display:flex;gap:8px;flex-wrap:wrap}
+.chips button{padding:10px 18px;border-radius:999px;border:1px solid var(--line);color:var(--mut);transition:all .25s}
+.chips button:hover{color:var(--ink)}
+.chips button.on{background:var(--ink);color:#0a0a14;border-color:var(--ink)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(310px,1fr));gap:26px;perspective:1200px}
+.card{position:relative;border-radius:26px;background:var(--card);border:1px solid var(--line);padding:14px;transform-style:preserve-3d;will-change:transform;backdrop-filter:blur(10px)}
+.card::after{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;
+ background:radial-gradient(420px circle at var(--mx,50%) var(--my,0%),rgba(124,92,255,.28),transparent 45%);opacity:0;transition:opacity .3s}
+.card:hover::after{opacity:1}
+.ph{position:relative;aspect-ratio:1;border-radius:18px;overflow:hidden;background:linear-gradient(135deg,#1b1838,#0e1a2b);transform:translateZ(40px);box-shadow:0 24px 40px -18px rgba(0,0,0,.8)}
+.ph img{width:100%;height:100%;object-fit:cover;transition:transform .8s cubic-bezier(.2,.8,.2,1)}
+.card:hover .ph img{transform:scale(1.12)}
+.tag{position:absolute;top:12px;left:12px;padding:5px 12px;border-radius:99px;background:rgba(6,6,12,.65);backdrop-filter:blur(8px);font-size:12px;font-weight:700;transform:translateZ(30px)}
+.info{padding:18px 8px 8px;transform:translateZ(26px)}
+.info h3{font-size:19px}
+.info p{color:var(--mut);font-size:14px;margin:6px 0 16px}
+.row{display:flex;align-items:center;justify-content:space-between}
+.price{font-family:Unbounded;font-size:18px}
+.add{padding:11px 18px;border-radius:999px;background:rgba(255,255,255,.08);border:1px solid var(--line);font-weight:700;font-size:14px;transition:all .25s}
+.add:hover{background:var(--a);border-color:var(--a)}
+
+/* FEATURES */
+.feat{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:22px;perspective:1000px}
+.feat div{padding:30px;border-radius:24px;border:1px solid var(--line);background:var(--card);backdrop-filter:blur(10px);transform-style:preserve-3d}
+.feat h3{font-size:18px;margin-bottom:10px}.feat p{color:var(--mut)}
+.big{font-family:Unbounded;font-size:44px;background:linear-gradient(135deg,var(--a),var(--b));-webkit-background-clip:text;background-clip:text;color:transparent;display:block;margin-bottom:8px}
+
+footer{padding:60px 6vw 40px;border-top:1px solid var(--line);background:rgba(6,6,12,.85);display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap;color:var(--mut)}
+
+/* CART */
+.ov{position:fixed;inset:0;background:rgba(0,0,0,.5);backdrop-filter:blur(3px);z-index:90;opacity:0;pointer-events:none;transition:opacity .3s}
+.ov.on{opacity:1;pointer-events:auto}
+.drawer{position:fixed;top:0;right:0;height:100%;width:min(420px,100%);z-index:100;background:#0d0c1b;border-left:1px solid var(--line);padding:26px;display:flex;flex-direction:column;translate:105% 0;transition:translate .5s cubic-bezier(.2,.9,.2,1)}
+.drawer.on{translate:0 0}
+.drawer h3{font-size:22px;margin-bottom:18px;display:flex;justify-content:space-between}
+.items{flex:1;overflow:auto;display:grid;gap:12px;align-content:start}
+.it{display:grid;grid-template-columns:64px 1fr auto;gap:12px;align-items:center;padding:10px;border-radius:16px;border:1px solid var(--line)}
+.it img{width:64px;height:64px;border-radius:12px;object-fit:cover;background:#1b1838}
+.it small{color:var(--mut);display:block}
+.it button{color:var(--mut);font-size:20px;padding:6px 10px}.it button:hover{color:#fff}
+.empty{color:var(--mut);padding:30px 0}
+.tot{display:flex;justify-content:space-between;font-family:Unbounded;margin:18px 0}
+.toast{position:fixed;left:50%;bottom:28px;translate:-50% 0;z-index:120;padding:12px 22px;border-radius:99px;background:var(--ink);color:#0a0a14;font-weight:700;opacity:0;pointer-events:none}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<canvas id="gl"></canvas>
+
+<header id="hd">
+  <a href="#top" class="logo"><i></i>KEYFORGE</a>
+  <nav>
+    <a href="#shop">Клавиатуры</a>
+    <a href="#why">Почему мы</a>
+    <a href="#top">3D-обзор</a>
+    <a href="#foot">Контакты</a>
+  </nav>
+  <div class="hr">
+    <button class="cartbtn" id="openCart" aria-label="Открыть корзину">Корзина <b id="cnt">0</b></button>
+  </div>
+</header>
+
+<main id="top">
+  <div class="hero">
+    <h1 id="title"></h1>
+    <p>Механические клавиатуры ручной сборки. Наведите курсор на 3D-клавиатуру и нажмите на любую клавишу.</p>
+    <div class="cta">
+      <a href="#shop" class="btn">Смотреть каталог</a>
+      <a href="#why" class="btn ghost">Почему KEYFORGE</a>
+    </div>
+    <div class="sw" id="sw">Цвет клавиш:
+      <button class="on" style="background:linear-gradient(135deg,#7c5cff,#38e1ff)" data-a="#7c5cff" data-b="#38e1ff" aria-label="Неон"></button>
+      <button style="background:linear-gradient(135deg,#ff7a59,#ffd166)" data-a="#ff7a59" data-b="#ffd166" aria-label="Закат"></button>
+      <button style="background:linear-gradient(135deg,#2ee59d,#0b7a63)" data-a="#2ee59d" data-b="#0b7a63" aria-label="Мята"></button>
+      <button style="background:linear-gradient(135deg,#ff6bd6,#f3e8ff)" data-a="#ff6bd6" data-b="#f3e8ff" aria-label="Сакура"></button>
+    </div>
+    <div class="hint">Прокрутите вниз — клавиатура повернётся</div>
+  </div>
+
+  <div class="mq"><div id="mq"></div></div>
+
+  <section id="shop">
+    <div class="head">
+      <h2 class="rv">Красивые клавиатуры</h2>
+      <div class="chips" id="chips">
+        <button class="on" data-f="all">Все</button>
+        <button data-f="mech">Механические</button>
+        <button data-f="wl">Беспроводные</button>
+        <button data-f="mini">Компактные</button>
+      </div>
+    </div>
+    <div class="grid" id="grid"></div>
+  </section>
+
+  <section id="why">
+    <div class="head"><h2 class="rv">Собираем звук и ощущение</h2></div>
+    <div class="feat">
+      <div><span class="big" data-n="48">0</span><h3>Часов тестирования</h3><p>Каждая клавиатура проходит проверку каждой клавиши перед отправкой.</p></div>
+      <div><span class="big" data-n="80">0</span><h3>Миллионов нажатий</h3><p>Переключатели рассчитаны на долгие годы работы без залипаний.</p></div>
+      <div><span class="big" data-n="3">0</span><h3>Дня доставки</h3><p>Отправляем по Казахстану и СНГ, упаковка защищает от ударов.</p></div>
+    </div>
+  </section>
+</main>
+
+<footer id="foot">
+  <div><div class="logo" style="color:var(--ink)"><i></i>KEYFORGE</div><p style="margin-top:10px">Магазин клавиатур. © 2026</p></div>
+  <div>hello@keyforge.shop<br>Ежедневно 10:00–20:00</div>
+</footer>
+
+<div class="ov" id="ov"></div>
+<aside class="drawer" id="drawer" aria-label="Корзина">
+  <h3>Корзина <button id="closeCart" aria-label="Закрыть">✕</button></h3>
+  <div class="items" id="items"></div>
+  <div class="tot"><span>Итого</span><span id="total">0 ₸</span></div>
+  <button class="btn" id="buy">Оформить заказ</button>
+</aside>
+<div class="toast" id="toast"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+<script>
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+gsap.registerPlugin(ScrollTrigger);
+
+/* ---------- ДАННЫЕ ---------- */
+const IMG=[
+"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQpSg97ARqMSrF5zZERmccenOPaBQdhMiaFsZNeposs_w&s=10",
+"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR2cwEZ4ZCDrwtEf6gMoV-pXqiViKJHjekak9iMPIC6Aw&s=10",
+"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRnyHz4rBd4w2VXldJ4eJbwZpjdg8pQxVPEKyi_NTAwlA&s=10",
+"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRGzdH6v8MYqck-W3yyMqcEY74gGxTcW_03fzrdNJ14SA&s=10",
+"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTDbQjuB8aEIGuPsT0TafbADrORXIhjS6dQQVasHbQPmA&s",
+"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRLSSi3tUU-ms4EpY3DV1QJatBlVyEXUVbO1lnPFpGqtQ&s=10"];
+const P=[
+{n:"Nebula 75",d:"Прокладки из пены, смазанные свитчи",p:89900,t:"Хит",c:"mech"},
+{n:"Aurora TKL",d:"RGB-подсветка, алюминиевый корпус",p:109900,t:"Новинка",c:"mech"},
+{n:"Orbit 65",d:"Bluetooth, 2.4 ГГц и провод",p:74900,t:"Беспроводная",c:"wl mini"},
+{n:"Pastel 60",d:"Компактная, PBT-кейкапы",p:59900,t:"Компактная",c:"mini"},
+{n:"Obsidian 100",d:"Полный размер, гасит шум корпуса",p:124900,t:"Топ",c:"mech"},
+{n:"Sakura Air",d:"Тонкая, 3 устройства по Bluetooth",p:68900,t:"Беспроводная",c:"wl"}];
+const fmt=n=>n.toLocaleString('ru-RU').replace(/\u00a0/g,' ')+' ₸';
+
+/* ---------- ЗАГОЛОВОК: буквы по одной ---------- */
+"Клавиатуры, которые хочется нажимать".split(' ').forEach(w=>{
+  const s=document.createElement('span');s.style.marginRight='.25em';s.textContent=w;$('#title').appendChild(s)});
+$('#mq').innerHTML=Array(2).fill(["Механика","Hot-swap","RGB","Bluetooth","PBT","Gasket","Linear","Tactile"].map(t=>`<span>${t}</span>`).join('')).join('');
+
+/* ---------- КАТАЛОГ ---------- */
+$('#grid').innerHTML=P.map((x,i)=>`<article class="card" data-c="${x.c}">
+ <div class="ph"><img src="${IMG[i]}" alt="${x.n}" loading="lazy" referrerpolicy="no-referrer" onerror="this.style.opacity=0"><span class="tag">${x.t}</span></div>
+ <div class="info"><h3>${x.n}</h3><p>${x.d}</p><div class="row"><span class="price">${fmt(x.p)}</span><button class="add" data-i="${i}">В корзину</button></div></div></article>`).join('');
+
+/* 3D-наклон карточек + блик */
+$$('.card').forEach(c=>{
+  const rx=gsap.quickTo(c,'rotationX',{duration:.5,ease:'power3'}),ry=gsap.quickTo(c,'rotationY',{duration:.5,ease:'power3'});
+  c.addEventListener('pointermove',e=>{const r=c.getBoundingClientRect(),x=(e.clientX-r.left)/r.width,y=(e.clientY-r.top)/r.height;
+    ry((x-.5)*18);rx(-(y-.5)*18);c.style.setProperty('--mx',x*100+'%');c.style.setProperty('--my',y*100+'%')});
+  c.addEventListener('pointerleave',()=>{rx(0);ry(0)});
+});
+
+/* Фильтры */
+$('#chips').addEventListener('click',e=>{
+  const b=e.target.closest('button');if(!b)return;
+  $$('#chips button').forEach(x=>x.classList.toggle('on',x===b));
+  const f=b.dataset.f,cs=$$('.card');
+  gsap.to(cs,{opacity:0,scale:.85,rotationY:-25,duration:.25,onComplete(){
+    cs.forEach(c=>c.style.display=(f==='all'||c.dataset.c.includes(f))?'':'none');
+    gsap.fromTo(cs.filter(c=>c.style.display===''),{opacity:0,scale:.85,rotationY:25},{opacity:1,scale:1,rotationY:0,duration:.6,stagger:.07,ease:'back.out(1.5)'});}});
+});
+
+/* ---------- КОРЗИНА ---------- */
+let cart=[];
+const toast=m=>{const t=$('#toast');t.textContent=m;gsap.fromTo(t,{opacity:1,y:30},{y:0,duration:.4,ease:'back.out(2)'});gsap.to(t,{opacity:0,delay:1.6,duration:.3})};
+function render(){
+  $('#cnt').textContent=cart.reduce((s,x)=>s+x.q,0);
+  $('#total').textContent=fmt(cart.reduce((s,x)=>s+P[x.i].p*x.q,0));
+  $('#items').innerHTML=cart.length?cart.map(x=>`<div class="it"><img src="${IMG[x.i]}" alt="" referrerpolicy="no-referrer"><div><b>${P[x.i].n}</b><small>${x.q} × ${fmt(P[x.i].p)}</small></div><button data-r="${x.i}" aria-label="Убрать">✕</button></div>`).join(''):'<p class="empty">Корзина пуста. Добавьте клавиатуру из каталога.</p>';
+}
+const cartOpen=o=>{$('#drawer').classList.toggle('on',o);$('#ov').classList.toggle('on',o)};
+document.addEventListener('click',e=>{
+  const a=e.target.closest('.add');
+  if(a){const i=+a.dataset.i,f=cart.find(x=>x.i===i);f?f.q++:cart.push({i,q:1});render();
+    gsap.fromTo('.cartbtn',{scale:1.25},{scale:1,duration:.6,ease:'elastic.out(1.2,.4)'});toast(P[i].n+' добавлена');}
+  const r=e.target.closest('[data-r]');
+  if(r){cart=cart.filter(x=>x.i!==+r.dataset.r);render()}
+});
+$('#openCart').onclick=()=>cartOpen(true);$('#closeCart').onclick=$('#ov').onclick=()=>cartOpen(false);
+$('#buy').onclick=()=>{if(!cart.length)return toast('Сначала добавьте товар');cart=[];render();cartOpen(false);toast('Заказ оформлен. Спасибо!')};
+render();
+
+/* ---------- THREE.JS: 3D-клавиатура ---------- */
+const cv=$('#gl'),R=new THREE.WebGLRenderer({canvas:cv,antialias:true,alpha:true});
+R.setPixelRatio(Math.min(devicePixelRatio,2));
+const S=new THREE.Scene(),cam=new THREE.PerspectiveCamera(40,1,.1,100);
+cam.position.set(0,7.5,9.5);cam.lookAt(0,0,0);
+S.add(new THREE.AmbientLight(0xffffff,.45));
+const L1=new THREE.PointLight(0x7c5cff,2.2,40);L1.position.set(-6,6,4);S.add(L1);
+const L2=new THREE.PointLight(0x38e1ff,2,40);L2.position.set(7,5,-2);S.add(L2);
+const kb=new THREE.Group();S.add(kb);
+kb.position.set(2.4,0,0);
+
+const U=.78,keys=[];
+const base=new THREE.Mesh(new THREE.BoxGeometry(14*U+.7,.5,5*U+.7),new THREE.MeshStandardMaterial({color:0x14122a,metalness:.7,roughness:.35}));
+base.position.y=-.35;kb.add(base);
+const kg=new THREE.BoxGeometry(U*.9,.5,U*.9);
+function addKey(c,r,w){
+  const mat=new THREE.MeshStandardMaterial({color:0x7c5cff,metalness:.25,roughness:.45});
+  const m=new THREE.Mesh(kg,mat);m.scale.x=w;
+  m.position.set((c+(w-1)/2-6.5)*U,0,(r-2)*U);m.userData={bx:m.position.x,bz:m.position.z,mod:(c===0||c>=12||r===4),t:0,ox:0,oz:0};
+  kb.add(m);keys.push(m);
+}
+for(let r=0;r<4;r++)for(let c=0;c<14;c++)addKey(c,r,1);
+[0,1,2].forEach(c=>addKey(c,4,1));addKey(3,4,6.5);[10,11,12,13].forEach(c=>addKey(c,4,1));
+
+/* частицы */
+const pg=new THREE.BufferGeometry(),N=500,pa=new Float32Array(N*3);
+for(let i=0;i<N*3;i++)pa[i]=(Math.random()-.5)*40;
+pg.setAttribute('position',new THREE.BufferAttribute(pa,3));
+const pts=new THREE.Points(pg,new THREE.PointsMaterial({size:.06,color:0x9aa8ff,transparent:true,opacity:.7}));S.add(pts);
+
+let theme={a:new THREE.Color('#7c5cff'),b:new THREE.Color('#38e1ff')};
+function paint(){keys.forEach(k=>k.material.color.copy(k.userData.mod?theme.b:theme.a));}
+paint();
+$('#sw').addEventListener('click',e=>{
+  const b=e.target.closest('button');if(!b)return;
+  $$('#sw button').forEach(x=>x.classList.toggle('on',x===b));
+  const A=new THREE.Color(b.dataset.a),B=new THREE.Color(b.dataset.b);
+  gsap.to(theme.a,{r:A.r,g:A.g,b:A.b,duration:.8});gsap.to(theme.b,{r:B.r,g:B.g,b:B.b,duration:.8});
+  L1.color.copy(A);L2.color.copy(B);
+});
+
+const ray=new THREE.Raycaster(),mouse=new THREE.Vector2(9,9),pl=new THREE.Plane(new THREE.Vector3(0,1,0),0),hit=new THREE.Vector3();
+let mx=0,my=0;
+addEventListener('pointermove',e=>{mouse.set(e.clientX/innerWidth*2-1,-(e.clientY/innerHeight)*2+1);mx=mouse.x;my=mouse.y});
+addEventListener('pointerdown',e=>{
+  if(e.target.closest('a,button,.card,header,.drawer'))return;
+  ray.setFromCamera(mouse,cam);const h=ray.intersectObjects(keys)[0];
+  if(h){const k=h.object;k.userData.t=performance.now()/1000;k.userData.ox=k.userData.bx;k.userData.oz=k.userData.bz;}
+});
+const pulses=[];
+function resize(){R.setSize(innerWidth,innerHeight,false);cam.aspect=innerWidth/innerHeight;
+  const m=innerWidth<800;cam.position.set(0,m?11:7.5,m?13:9.5);kb.position.set(m?0:2.4,m?2.2:0,0);cam.updateProjectionMatrix()}
+addEventListener('resize',resize);resize();
+
+const clock=new THREE.Clock();let scrollRot=0,scrollY=0;
+ray.setFromCamera(mouse,cam);
+function tick(){
+  const t=clock.getElapsedTime();
+  ray.setFromCamera(mouse,cam);
+  const hp=ray.ray.intersectPlane(pl,hit)?kb.worldToLocal(hit.clone()):null;
+  const now=performance.now()/1000;
+  keys.forEach(k=>{
+    const u=k.userData;let y=Math.sin(t*1.4+u.bx*.6+u.bz*.8)*.07;
+    if(hp){const d=(u.bx-hp.x)**2+(u.bz-hp.z)**2;y-=Math.exp(-d*.9)*.28;}
+    if(u.t){const age=now-u.t;if(age<1.6){keys.forEach(o=>{});}else u.t=0;}
+    k.position.y+=(y-k.position.y)*.14;
+  });
+  /* волна от клика */
+  keys.forEach(k=>{
+    const u=k.userData;
+    pulses.forEach(p=>{const age=now-p.t,d=Math.hypot(u.bx-p.x,u.bz-p.z);const w=Math.exp(-((d-age*6)**2)*1.4);k.position.y+=w*.35*Math.max(0,1-age/1.6);});
+  });
+  kb.rotation.y+=((mx*.35+scrollRot)-kb.rotation.y)*.05;
+  kb.rotation.x+=((-my*.12+scrollY*.5)-kb.rotation.x)*.05;
+  pts.rotation.y=t*.02;L1.position.x=-6+Math.sin(t*.6)*3;L2.position.z=-2+Math.cos(t*.5)*3;
+  while(pulses.length&&now-pulses[0].t>1.8)pulses.shift();
+  R.render(S,cam);requestAnimationFrame(tick);
+}
+addEventListener('pointerdown',()=>{
+  ray.setFromCamera(mouse,cam);const h=ray.intersectObjects(keys)[0];
+  if(h)pulses.push({x:h.object.userData.bx,z:h.object.userData.bz,t:performance.now()/1000});
+});
+tick();
+
+/* ---------- GSAP: тайминги и анимации ---------- */
+const tl=gsap.timeline({defaults:{ease:'power4.out'}});
+tl.from('header',{y:-80,opacity:0,duration:1})
+  .from('#title span',{yPercent:110,rotationX:-80,opacity:0,transformOrigin:'0 100% -60px',duration:1.1,stagger:.12},'-=.6')
+  .from('.hero p,.cta,.sw',{y:30,opacity:0,duration:.9,stagger:.12},'-=.7')
+  .from(kb.position,{y:-6,duration:1.6,ease:'elastic.out(1,.6)'},0.3)
+  .from(kb.scale,{x:.01,y:.01,z:.01,duration:1.4,ease:'back.out(1.6)'},0.3);
+
+/* шапка сжимается при скролле */
+ScrollTrigger.create({start:60,onUpdate:s=>$('#hd').classList.toggle('small',s.scroll()>60)});
+/* клавиатура поворачивается при скролле */
+ScrollTrigger.create({trigger:'.hero',start:'top top',end:'bottom top',scrub:true,
+  onUpdate:s=>{scrollRot=s.progress*1.1;scrollY=s.progress*1.2;}});
+gsap.to('#mq',{xPercent:-50,duration:22,ease:'none',repeat:-1});
+gsap.to('#gl',{opacity:.25,scrollTrigger:{trigger:'#shop',start:'top 80%',end:'top 20%',scrub:true}});
+/* появление блоков с 3D-эффектом */
+gsap.from('.card',{opacity:0,y:90,rotationX:-40,scale:.9,duration:1,stagger:.12,ease:'power3.out',
+  scrollTrigger:{trigger:'#grid',start:'top 85%'}});
+gsap.from('.rv',{opacity:0,x:-60,duration:1,ease:'power3.out',scrollTrigger:{trigger:'.rv',start:'top 90%'}});
+gsap.from('.feat div',{opacity:0,rotationY:-60,z:-200,duration:1.1,stagger:.18,ease:'power3.out',
+  scrollTrigger:{trigger:'.feat',start:'top 85%'}});
+$$('.big').forEach(el=>{const o={v:0};gsap.to(o,{v:+el.dataset.n,duration:2,ease:'power2.out',
+  onUpdate:()=>el.textContent=Math.round(o.v),scrollTrigger:{trigger:el,start:'top 90%'}})});
+</script>
+</body>
+</html>
