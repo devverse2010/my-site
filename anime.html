@@ -1,0 +1,1067 @@
+ <!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Yeageeer Anime Hub — Твой портал в мир аниме</title>
+    <!-- FontAwesome для иконок -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Шрифты: Sora для заголовков (геометричный, техно), Inter для интерфейса -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #080b14;
+            --bg-soft: #0c1120;
+            --surface: #121a2e;
+            --surface-2: #1a2440;
+            --surface-3: #212c4d;
+            --edge: rgba(255, 255, 255, 0.07);
+            --edge-strong: rgba(255, 255, 255, 0.14);
+            --text: #f3f5ff;
+            --text-dim: #8d97ba;
+            --text-faint: #5b6690;
+            --cyan: #00f0ff;
+            --cyan-dim: rgba(0, 240, 255, 0.35);
+            --blue: #4f6bff;
+            --violet: #a855f7;
+            --gold: #ffcf5c;
+            --danger: #ef4444;
+            --radius-lg: 20px;
+            --radius-md: 14px;
+            --radius-sm: 10px;
+            --ease: cubic-bezier(.22, 1, .36, 1);
+            --ease-soft: cubic-bezier(.4, 0, .2, 1);
+            --font-display: 'Sora', 'Segoe UI', sans-serif;
+            --font-body: 'Inter', 'Segoe UI', sans-serif;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: var(--font-body);
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.001ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.001ms !important;
+                scroll-behavior: auto !important;
+            }
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* Атмосферный фон: дрейфующие цветные ореолы + "студийный" пол-сетка,
+           создают ощущение, что карточки парят в 3D-пространстве */
+        @keyframes auraDrift {
+            0%   { transform: translate3d(-4%, -2%, 0) scale(1); }
+            50%  { transform: translate3d(4%, 3%, 0) scale(1.08); }
+            100% { transform: translate3d(-4%, -2%, 0) scale(1); }
+        }
+        @keyframes auraDrift2 {
+            0%   { transform: translate3d(3%, 2%, 0) scale(1.05); }
+            50%  { transform: translate3d(-5%, -3%, 0) scale(0.95); }
+            100% { transform: translate3d(3%, 2%, 0) scale(1.05); }
+        }
+
+        body::before {
+            content: "";
+            position: fixed;
+            inset: -10% -10% auto auto;
+            width: 60vw;
+            height: 60vw;
+            max-width: 900px;
+            max-height: 900px;
+            background: radial-gradient(circle, rgba(0, 240, 255, 0.16), transparent 65%);
+            filter: blur(10px);
+            z-index: 0;
+            pointer-events: none;
+            animation: auraDrift 22s ease-in-out infinite;
+        }
+
+        body::after {
+            content: "";
+            position: fixed;
+            inset: auto auto -15% -10%;
+            width: 55vw;
+            height: 55vw;
+            max-width: 800px;
+            max-height: 800px;
+            background: radial-gradient(circle, rgba(168, 85, 247, 0.14), transparent 65%);
+            filter: blur(10px);
+            z-index: 0;
+            pointer-events: none;
+            animation: auraDrift2 26s ease-in-out infinite;
+        }
+
+        /* Перспективный "пол" внизу экрана — лёгкий намёк на 3D-витрину */
+        .floor-grid {
+            position: fixed;
+            left: 0; right: 0; bottom: 0;
+            height: 45vh;
+            z-index: 0;
+            pointer-events: none;
+            background-image:
+                linear-gradient(rgba(0, 240, 255, 0.07) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 240, 255, 0.07) 1px, transparent 1px);
+            background-size: 48px 48px;
+            transform: perspective(500px) rotateX(62deg) scale(2);
+            transform-origin: bottom center;
+            -webkit-mask-image: linear-gradient(to top, rgba(0,0,0,.55), transparent 85%);
+            mask-image: linear-gradient(to top, rgba(0,0,0,.55), transparent 85%);
+            opacity: 0.6;
+        }
+
+        a, button, select, input {
+            font-family: inherit;
+        }
+
+        :focus-visible {
+            outline: 2px solid var(--cyan);
+            outline-offset: 3px;
+            border-radius: 4px;
+        }
+
+        /* Шапка сайта */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 18px 40px;
+            background: rgba(8, 11, 20, 0.72);
+            backdrop-filter: blur(18px) saturate(140%);
+            -webkit-backdrop-filter: blur(18px) saturate(140%);
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            z-index: 1000;
+            border-bottom: 1px solid var(--edge);
+        }
+        header::after {
+            content: "";
+            position: absolute;
+            left: 0; right: 0; bottom: -1px;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--cyan-dim), transparent);
+        }
+
+        .logo {
+            font-family: var(--font-display);
+            font-size: 21px;
+            font-weight: 700;
+            color: var(--cyan);
+            letter-spacing: 0.02em;
+            cursor: pointer;
+            text-shadow: 0 1px 0 rgba(0,0,0,.4), 0 0 18px rgba(0, 240, 255, 0.45);
+            transition: transform .35s var(--ease);
+        }
+        .logo:hover {
+            transform: scale(1.08) translateY(-1px);
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 30px;
+            list-style: none;
+        }
+
+        .nav-links a {
+            position: relative;
+            color: var(--text-dim);
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            padding-bottom: 4px;
+            transition: color .3s var(--ease-soft);
+        }
+        .nav-links a::after {
+            content: "";
+            position: absolute;
+            left: 0; bottom: 0;
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(90deg, var(--cyan), var(--violet));
+            border-radius: 2px;
+            transform: scaleX(0);
+            transform-origin: left;
+            transition: transform .35s var(--ease);
+        }
+
+        .nav-links a:hover, .nav-links a.active {
+            color: #fff;
+        }
+        .nav-links a:hover::after, .nav-links a.active::after {
+            transform: scaleX(1);
+        }
+
+        /* БЛОК ПРОФИЛЯ В ШАПКЕ */
+        .header-auth-container {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .auth-btn-header {
+            background: linear-gradient(135deg, var(--blue), var(--cyan));
+            border: none;
+            padding: 10px 22px;
+            border-radius: var(--radius-sm);
+            color: white;
+            font-weight: 700;
+            font-size: 14px;
+            cursor: pointer;
+            transition: transform .3s var(--ease), box-shadow .3s var(--ease);
+            box-shadow: 0 8px 20px -8px rgba(59, 130, 246, 0.6);
+        }
+
+        .auth-btn-header:hover {
+            transform: translateY(-2px) scale(1.04);
+            box-shadow: 0 14px 30px -10px rgba(0, 240, 255, 0.7);
+        }
+        .auth-btn-header:active {
+            transform: translateY(0) scale(.97);
+        }
+
+        .user-profile-btn {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid var(--edge-strong);
+            padding: 6px 14px 6px 6px;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: all 0.3s var(--ease-soft);
+        }
+
+        .user-profile-btn:hover {
+            background: rgba(0, 240, 255, 0.08);
+            border-color: var(--cyan-dim);
+            box-shadow: 0 0 18px rgba(0, 240, 255, 0.3);
+        }
+
+        .user-avatar {
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid var(--cyan);
+        }
+
+        .user-name {
+            font-weight: 600;
+            color: #fff;
+            font-size: 14px;
+        }
+
+        /* ВЫПАДАЮЩЕЕ МЕНЮ ПРОФИЛЯ */
+        .user-dropdown-menu {
+            position: absolute;
+            top: 58px;
+            right: 0;
+            background: var(--surface-2);
+            border: 1px solid var(--edge-strong);
+            border-radius: var(--radius-md);
+            width: 220px;
+            padding: 10px 0;
+            box-shadow: 0 20px 45px -10px rgba(0, 0, 0, 0.6), 0 0 20px rgba(0, 240, 255, 0.12);
+            opacity: 0;
+            visibility: hidden;
+            transform: perspective(600px) rotateX(-8deg) translateY(-8px);
+            transform-origin: top right;
+            transition: all 0.3s var(--ease);
+            z-index: 1001;
+        }
+
+        .user-dropdown-menu.active {
+            opacity: 1;
+            visibility: visible;
+            transform: perspective(600px) rotateX(0) translateY(0);
+        }
+
+        .dropdown-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 11px 20px;
+            color: var(--text-dim);
+            text-decoration: none;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 14px;
+        }
+
+        .dropdown-item:hover {
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--cyan);
+            padding-left: 24px;
+        }
+
+        .dropdown-item.logout:hover {
+            color: var(--danger);
+            background: rgba(239, 68, 68, 0.1);
+        }
+
+        .dropdown-divider {
+            height: 1px;
+            background: var(--edge);
+            margin: 8px 0;
+        }
+
+        /* Страницы */
+        .page-view {
+            display: none;
+            padding-top: 100px;
+            min-height: 100vh;
+            position: relative;
+            z-index: 1;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(14px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .page-view.active {
+            display: block;
+            animation: fadeIn 0.5s var(--ease);
+        }
+
+        /* Главная герои-секция */
+        .hero-section {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 60px 40px 50px;
+            gap: 40px;
+            perspective: 1400px;
+        }
+
+        .hero-content {
+            max-width: 600px;
+        }
+
+        .badge {
+            display: inline-block;
+            background: rgba(0, 240, 255, 0.12);
+            color: var(--cyan);
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 12.5px;
+            font-weight: 700;
+            letter-spacing: 0.01em;
+            border: 1px solid var(--cyan-dim);
+        }
+
+        .hero-title {
+            font-family: var(--font-display);
+            font-size: 52px;
+            font-weight: 800;
+            margin: 18px 0;
+            color: #fff;
+            line-height: 1.05;
+            letter-spacing: -0.01em;
+            text-shadow: 0 1px 0 rgba(0,0,0,.5), 0 2px 0 rgba(0,0,0,.3), 0 0 50px rgba(0, 240, 255, 0.25);
+        }
+
+        .hero-description {
+            color: var(--text-dim);
+            font-size: 16px;
+            line-height: 1.65;
+            margin-bottom: 28px;
+            max-width: 52ch;
+        }
+
+        .btn {
+            padding: 13px 26px;
+            border-radius: var(--radius-sm);
+            font-weight: 700;
+            font-size: 14.5px;
+            cursor: pointer;
+            border: none;
+            transition: transform .3s var(--ease), box-shadow .3s var(--ease), background .3s var(--ease-soft);
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--blue), #2f6bff);
+            color: white;
+            box-shadow: 0 10px 26px -10px rgba(59, 130, 246, 0.65);
+        }
+
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #2563eb, var(--cyan));
+            transform: translateY(-4px) scale(1.02);
+            box-shadow: 0 18px 40px -12px rgba(0, 240, 255, 0.7);
+        }
+        .btn-primary:active {
+            transform: translateY(-1px) scale(.97);
+        }
+
+        .btn-bookmark-hero {
+            background: rgba(255, 255, 255, 0.06);
+            color: #fff;
+            border: 1px solid var(--edge-strong);
+        }
+        .btn-bookmark-hero:hover {
+            background: rgba(0, 240, 255, 0.14);
+            border-color: var(--cyan);
+            box-shadow: 0 0 24px rgba(0, 240, 255, 0.4);
+            transform: translateY(-4px) scale(1.02);
+        }
+        .btn-bookmark-hero:active {
+            transform: translateY(-1px) scale(.97);
+        }
+        .btn-bookmark-hero.active {
+            background: linear-gradient(135deg, var(--cyan), var(--violet));
+            border-color: transparent;
+            box-shadow: 0 0 24px rgba(168, 85, 247, 0.8);
+        }
+
+        /* Карточка-витрина в хиро-блоке: тонкая идле-анимация парения + наклон за курсором (JS) */
+        @keyframes heroFloat {
+            0%, 100% { transform: translateY(0) rotateZ(0deg); }
+            50% { transform: translateY(-14px) rotateZ(0.6deg); }
+        }
+
+        .neon-hero-card {
+            width: 300px;
+            height: 420px;
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            position: relative;
+            border: 1px solid var(--cyan-dim);
+            box-shadow: 0 25px 60px -20px rgba(0, 0, 0, .75), 0 0 40px -8px rgba(0, 240, 255, 0.35);
+            cursor: pointer;
+            transform-style: preserve-3d;
+            transform: perspective(1000px) rotateX(var(--ry, 0deg)) rotateY(var(--rx, 0deg));
+            transition: transform .5s var(--ease), box-shadow .5s var(--ease);
+            animation: heroFloat 6s ease-in-out infinite;
+        }
+
+        .neon-hero-card:hover {
+            box-shadow: 0 35px 80px -20px rgba(0, 0, 0, .8), 0 0 60px -6px rgba(0, 240, 255, 0.6);
+        }
+
+        .neon-hero-card img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transform: translateZ(0);
+        }
+
+        .content-section {
+            padding: 20px 40px 60px;
+            position: relative;
+        }
+
+        .section-title {
+            font-family: var(--font-display);
+            font-size: 26px;
+            font-weight: 700;
+            margin-bottom: 25px;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .anime-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 26px;
+            perspective: 1400px;
+        }
+
+        /* Карточка тайтла: наклоняется вслед за курсором (переменные --rx/--ry/--mx/--my
+           выставляет effects.js), слои картинки и текста "всплывают" ближе к зрителю */
+        .anime-card {
+            background: linear-gradient(165deg, var(--surface-2), var(--surface));
+            border-radius: var(--radius-md);
+            overflow: hidden;
+            border: 1px solid var(--edge);
+            cursor: pointer;
+            position: relative;
+            isolation: isolate;
+            transform-style: preserve-3d;
+            transform: perspective(1000px) rotateX(var(--ry, 0deg)) rotateY(var(--rx, 0deg)) translateZ(0) scale(1);
+            transition: transform .5s var(--ease), box-shadow .5s var(--ease), border-color .5s var(--ease-soft);
+            box-shadow: 0 1px 0 var(--edge) inset, 0 16px 34px -20px rgba(0, 0, 0, .7);
+        }
+
+        .anime-card::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(240px circle at var(--mx, 50%) var(--my, 50%), rgba(0, 240, 255, 0.22), transparent 60%);
+            opacity: 0;
+            transition: opacity .4s var(--ease-soft);
+            pointer-events: none;
+            z-index: 3;
+        }
+
+        .anime-card:hover {
+            border-color: var(--cyan-dim);
+            box-shadow: 0 1px 0 var(--edge) inset, 0 32px 60px -18px rgba(0, 0, 0, .8), 0 0 0 1px var(--cyan-dim), 0 0 45px -10px var(--cyan-dim);
+        }
+        .anime-card:hover::before {
+            opacity: 1;
+        }
+        .anime-card:active {
+            transition: transform .15s ease-out;
+            transform: perspective(1000px) rotateX(0deg) rotateY(0deg) translateZ(-12px) scale(.97);
+        }
+
+        .anime-card img {
+            width: 100%;
+            height: 280px;
+            object-fit: cover;
+            display: block;
+            transform: translateZ(0) scale(1);
+            transition: transform .6s var(--ease);
+        }
+        .anime-card:hover img {
+            transform: translateZ(55px) scale(1.07);
+        }
+
+        .anime-card-info {
+            padding: 16px;
+            position: relative;
+            z-index: 2;
+            background: linear-gradient(0deg, var(--surface) 55%, transparent);
+            transform: translateZ(0);
+            transition: transform .6s var(--ease);
+        }
+        .anime-card:hover .anime-card-info {
+            transform: translateZ(70px);
+        }
+
+        .anime-card-info h3 {
+            font-family: var(--font-display);
+            font-size: 15.5px;
+            font-weight: 600;
+            margin-bottom: 6px;
+            color: #fff;
+        }
+
+        .anime-card-info p {
+            font-size: 12px;
+            color: var(--text-dim);
+        }
+
+        @keyframes bellWiggle {
+            0% { transform: translateZ(80px) rotate(0deg) scale(1); }
+            20% { transform: translateZ(80px) rotate(-15deg) scale(1.2); }
+            40% { transform: translateZ(80px) rotate(15deg) scale(1.2); }
+            60% { transform: translateZ(80px) rotate(-10deg) scale(1.1); }
+            80% { transform: translateZ(80px) rotate(10deg) scale(1.1); }
+            100% { transform: translateZ(80px) rotate(0deg) scale(1.15); }
+        }
+
+        .bookmark-icon-btn {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            background: rgba(8, 11, 20, 0.85);
+            border: 1px solid var(--cyan-dim);
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s var(--ease);
+            backdrop-filter: blur(6px);
+            z-index: 5;
+            transform: translateZ(60px);
+        }
+
+        .bookmark-icon-btn:hover {
+            background: rgba(0, 240, 255, 0.28);
+            border-color: var(--cyan);
+            box-shadow: 0 0 18px rgba(0, 240, 255, 0.8);
+            transform: translateZ(60px) scale(1.15);
+        }
+
+        .bookmark-icon-btn.active {
+            background: linear-gradient(135deg, var(--cyan), var(--violet));
+            color: #fff;
+            border-color: transparent;
+            box-shadow: 0 0 18px rgba(168, 85, 247, 0.9);
+            animation: bellWiggle 0.4s ease;
+        }
+
+        .details-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 30px;
+        }
+
+        .details-hero {
+            display: flex;
+            gap: 30px;
+            background: linear-gradient(165deg, var(--surface-2), var(--surface));
+            padding: 26px;
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--edge);
+            margin-bottom: 30px;
+            box-shadow: 0 20px 50px -20px rgba(0, 0, 0, .7);
+        }
+
+        .details-img {
+            width: 220px;
+            height: 310px;
+            object-fit: cover;
+            border-radius: var(--radius-md);
+            border: 1px solid var(--cyan-dim);
+            box-shadow: 0 15px 35px -10px rgba(0, 0, 0, .6), 0 0 25px -6px rgba(59, 130, 246, 0.5);
+            flex-shrink: 0;
+        }
+
+        .details-info h1 {
+            font-family: var(--font-display);
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .genre-tag {
+            color: var(--cyan);
+            font-weight: 700;
+            font-size: 13.5px;
+            margin-bottom: 15px;
+            letter-spacing: 0.01em;
+        }
+
+        .video-player-container {
+            width: 100%;
+            height: 500px;
+            background: #000;
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            border: 1px solid var(--edge-strong);
+            box-shadow: 0 25px 60px -20px rgba(0, 0, 0, .8), 0 0 35px -10px rgba(59, 130, 246, 0.4);
+            margin-bottom: 20px;
+        }
+
+        .video-player-container video {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            outline: none;
+        }
+
+        .player-controls-bar {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            background: var(--surface);
+            padding: 15px 20px;
+            border-radius: var(--radius-md);
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 25px;
+            border: 1px solid var(--edge);
+        }
+
+        .control-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 14px;
+        }
+
+        .custom-select {
+            background: var(--bg-soft);
+            color: #fff;
+            border: 1px solid var(--edge-strong);
+            padding: 9px 14px;
+            border-radius: var(--radius-sm);
+            outline: none;
+            cursor: pointer;
+            transition: all 0.3s var(--ease-soft);
+        }
+        .custom-select:hover {
+            border-color: var(--cyan);
+            box-shadow: 0 0 14px rgba(0, 240, 255, 0.35);
+        }
+
+        .episodes-bar {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            max-height: 170px;
+            overflow-y: auto;
+            padding: 12px;
+            background: var(--surface);
+            border-radius: var(--radius-md);
+            border: 1px solid var(--edge);
+        }
+
+        .episode-btn {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid var(--edge-strong);
+            color: #fff;
+            padding: 8px 15px;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            font-size: 13.5px;
+            font-weight: 600;
+            transition: all 0.25s var(--ease-soft);
+        }
+
+        .episode-btn:hover {
+            border-color: var(--cyan);
+            background: rgba(0, 240, 255, 0.16);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 18px -6px rgba(0, 240, 255, 0.5);
+        }
+        .episode-btn:active {
+            transform: translateY(0) scale(.95);
+        }
+
+        .episode-btn.active {
+            background: linear-gradient(135deg, var(--cyan), var(--blue));
+            border-color: transparent;
+            color: #04101c;
+            font-weight: 700;
+            box-shadow: 0 0 16px rgba(0, 240, 255, 0.6);
+        }
+
+        .top100-list {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .top100-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: linear-gradient(100deg, var(--surface-2), var(--surface));
+            padding: 15px 25px;
+            border-radius: var(--radius-md);
+            border: 1px solid var(--edge);
+            cursor: pointer;
+            transition: transform 0.4s var(--ease), box-shadow 0.4s var(--ease), border-color .4s var(--ease-soft);
+            position: relative;
+        }
+
+        .top100-item:hover {
+            border-color: var(--cyan-dim);
+            transform: translateX(8px) translateY(-2px);
+            box-shadow: 0 14px 34px -12px rgba(0, 240, 255, 0.35);
+        }
+
+        .top100-left {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .top100-rank {
+            font-family: var(--font-display);
+            font-size: 24px;
+            font-weight: 800;
+            color: var(--cyan);
+            width: 44px;
+            text-shadow: 0 1px 0 rgba(0,0,0,.5), 0 0 18px rgba(0, 240, 255, 0.4);
+        }
+
+        .top100-img {
+            width: 55px;
+            height: 75px;
+            object-fit: cover;
+            border-radius: var(--radius-sm);
+            box-shadow: 0 8px 18px -6px rgba(0,0,0,.6);
+        }
+
+        /* Модальные окна */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background: rgba(4, 6, 12, 0.88); backdrop-filter: blur(14px);
+            display: none; justify-content: center; align-items: center; z-index: 9999;
+            perspective: 1000px;
+        }
+        .modal-card {
+            background: linear-gradient(165deg, var(--surface-2), var(--surface));
+            padding: 36px; border-radius: var(--radius-lg); width: 90%; max-width: 420px;
+            border: 1px solid var(--edge-strong); box-shadow: 0 30px 70px -20px rgba(0, 0, 0, .7), 0 0 50px -12px rgba(59, 130, 246, 0.45);
+            animation: modalAppear 0.5s var(--ease);
+            position: relative;
+        }
+        .close-modal-btn {
+            position: absolute; top: 16px; right: 20px; background: transparent; border: none;
+            color: var(--text-dim); font-size: 20px; cursor: pointer; transition: color 0.3s, transform .3s var(--ease);
+        }
+        .close-modal-btn:hover { color: var(--danger); transform: rotate(90deg); }
+
+        @keyframes modalAppear {
+            from { opacity: 0; transform: perspective(1000px) rotateX(-14deg) translateY(-24px) scale(.92); }
+            to { opacity: 1; transform: perspective(1000px) rotateX(0) translateY(0) scale(1); }
+        }
+
+        .auth-tabs { display: flex; background: var(--bg-soft); padding: 4px; border-radius: var(--radius-sm); margin-bottom: 20px; border: 1px solid var(--edge-strong); }
+        .tab-btn { flex: 1; padding: 10px; border: none; background: transparent; color: var(--text-dim); font-weight: 700; font-size: 13.5px; cursor: pointer; border-radius: 8px; transition: all 0.3s var(--ease-soft); }
+        .tab-btn.active { background: linear-gradient(135deg, var(--blue), var(--cyan)); color: #04101c; box-shadow: 0 6px 16px -6px rgba(0, 240, 255, 0.6); }
+        .auth-form { display: none; }
+        .auth-form.active { display: block; animation: fadeIn 0.35s var(--ease); }
+        .input-group { margin-bottom: 15px; }
+        .input-group input { width: 100%; padding: 12px 15px; border-radius: var(--radius-sm); border: 1px solid var(--edge-strong); background: var(--bg-soft); color: #fff; outline: none; transition: all 0.3s var(--ease-soft); font-size: 14px; }
+        .input-group input:focus { border-color: var(--cyan); box-shadow: 0 0 16px rgba(0, 240, 255, 0.35); }
+
+        .google-auth-btn { width: 100%; background: #ffffff; color: #1e293b; border: none; padding: 12px; border-radius: var(--radius-sm); font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 12px; margin-bottom: 15px; transition: all 0.3s var(--ease); box-shadow: 0 6px 16px -4px rgba(0,0,0,0.35); }
+        .google-auth-btn:hover { background: #f1f5f9; transform: translateY(-2px); box-shadow: 0 0 24px rgba(255, 255, 255, 0.5); }
+        .google-auth-btn:active { transform: translateY(0) scale(.98); }
+
+        .divider { text-align: center; color: var(--text-faint); font-size: 13px; margin: 15px 0; position: relative; }
+        .divider::before, .divider::after { content: ""; position: absolute; top: 50%; width: 40%; height: 1px; background: var(--edge-strong); }
+        .divider::before { left: 0; } .divider::after { right: 0; }
+
+        /* Окно выбора Google аккаунтов */
+        .google-acc-list { display: flex; flex-direction: column; gap: 10px; margin-bottom: 15px; max-height: 220px; overflow-y: auto; }
+        .google-acc-item { display: flex; align-items: center; gap: 15px; padding: 10px 12px; background: rgba(255, 255, 255, 0.04); border: 1px solid var(--edge-strong); border-radius: var(--radius-sm); cursor: pointer; transition: all 0.25s var(--ease-soft); }
+        .google-acc-item:hover { background: rgba(255, 255, 255, 0.08); border-color: var(--blue); transform: translateX(4px); }
+        .acc-avatar { width: 36px; height: 36px; border-radius: 50%; background: var(--blue); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 16px; color: white; }
+        .acc-info { flex: 1; }
+        .acc-name { font-weight: 600; color: #fff; font-size: 14px; }
+        .acc-email { color: var(--text-dim); font-size: 11px; }
+
+        /* Тонкий неоновый скроллбар, в тон теме */
+        ::-webkit-scrollbar { width: 10px; height: 10px; }
+        ::-webkit-scrollbar-track { background: var(--bg-soft); }
+        ::-webkit-scrollbar-thumb { background: var(--surface-3); border-radius: 10px; border: 2px solid var(--bg-soft); }
+        ::-webkit-scrollbar-thumb:hover { background: var(--cyan-dim); }
+
+        @media (max-width: 860px) {
+            header { padding: 16px 20px; }
+            .nav-links { gap: 16px; }
+            .hero-section { flex-direction: column; padding: 90px 20px 30px; text-align: center; }
+            .hero-description { margin-left: auto; margin-right: auto; }
+            .hero-title { font-size: 36px; }
+            .content-section { padding: 10px 20px 40px; }
+            .details-hero { flex-direction: column; }
+            .details-img { width: 100%; height: 320px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="floor-grid" aria-hidden="true"></div>
+
+    <!-- МОДАЛЬНОЕ ОКНО АВТОРИЗАЦИИ -->
+    <div class="modal-overlay" id="authModal">
+        <div class="modal-card">
+            <button class="close-modal-btn" onclick="closeAuthModal()"><i class="fa-solid fa-xmark"></i></button>
+            <h2 style="text-align: center; margin-bottom: 6px;">Добро пожаловать</h2>
+            <p style="text-align: center; color: #94a3b8; font-size: 13px; margin-bottom: 20px;">Авторизуйтесь для доступа к каталогу</p>
+            
+            <button class="google-auth-btn" onclick="openGoogleAccountSelect()">
+                <i class="fa-brands fa-google" style="color: #ea4335;"></i> Выбрать Google аккаунт
+            </button>
+
+            <div class="divider">или по Email</div>
+
+            <div class="auth-tabs">
+                <button class="tab-btn active" id="tabLoginBtn" onclick="switchAuthTab('login')">Вход</button>
+                <button class="tab-btn" id="tabRegBtn" onclick="switchAuthTab('register')">Регистрация</button>
+            </div>
+
+            <form id="loginForm" class="auth-form active" onsubmit="handleAuthSubmit(event, 'login')">
+                <div class="input-group">
+                    <input type="email" id="loginEmail" placeholder="Ваш Gmail (например, tnaliverzan341@gmail.com)" autocomplete="email" list="savedEmailsList" required oninput="rememberEmail(this.value)">
+                </div>
+                <div class="input-group">
+                    <input type="password" placeholder="Пароль" required>
+                </div>
+                <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center;">Войти</button>
+            </form>
+
+            <form id="registerForm" class="auth-form" onsubmit="handleAuthSubmit(event, 'register')">
+                <div class="input-group">
+                    <input type="text" id="regUsername" placeholder="Имя пользователя" required>
+                </div>
+                <div class="input-group">
+                    <input type="email" id="regEmail" placeholder="Ваш Gmail (например, tnaliverzan341@gmail.com)" autocomplete="email" list="savedEmailsList" required oninput="rememberEmail(this.value)">
+                </div>
+                <div class="input-group">
+                    <input type="password" placeholder="Придумайте пароль" required>
+                </div>
+                <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center;">Зарегистрироваться</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- ОКНО ВЫБОРА GOOGLE АККАУНТОВ (С возможностью добавления своего) -->
+    <div class="modal-overlay" id="googleSelectModal">
+        <div class="modal-card">
+            <button class="close-modal-btn" onclick="closeGoogleAccountSelect()"><i class="fa-solid fa-xmark"></i></button>
+            <div style="text-align: center; margin-bottom: 15px;">
+                <i class="fa-brands fa-google" style="color: #ea4335; font-size: 30px; margin-bottom: 8px;"></i>
+                <h3 style="color: #fff;">Выберите аккаунт Google</h3>
+                <p style="color: #94a3b8; font-size: 12px;">для входа в Yeageeer Hub</p>
+            </div>
+            
+            <!-- Список динамических аккаунтов -->
+            <div class="google-acc-list" id="googleAccListContainer"></div>
+
+            <!-- Кнопка добавления нового личного аккаунта -->
+            <button class="btn" style="width: 100%; background: rgba(59, 130, 246, 0.2); border: 1px dashed #3b82f6; color: #60a5fa; justify-content: center; margin-bottom: 10px;" onclick="promptAddGoogleAccount()">
+                <i class="fa-solid fa-plus"></i> Добавить другой аккаунт
+            </button>
+        </div>
+    </div>
+
+    <!-- ДИНАМИЧЕСКИЙ СПИСОК АВТОЗАПОЛНЕНИЯ ПОЧТЫ (Подсказки под каждую букву) -->
+    <datalist id="savedEmailsList"></datalist>
+
+    <!-- ШАПКА САЙТА -->
+    <header>
+        <div class="logo" onclick="showPage('pageMain')">⚡ Yeageeer Hub</div>
+        <ul class="nav-links">
+            <li><a id="navMain" class="active" onclick="showPage('pageMain')">Главная</a></li>
+            <li><a id="navCatalog" onclick="showPage('pageMain', true)">Каталог</a></li>
+            <li><a id="navTop100" onclick="showPage('pageTop100')">Топ 100</a></li>
+            <li><a id="navBookmarks" onclick="showPage('pageBookmarks')">Закладки (<span id="bookmarkCount">0</span>)</a></li>
+        </ul>
+        
+        <div class="header-auth-container" id="headerAuthContainer">
+            <button class="auth-btn-header" id="headerLoginBtn" onclick="openAuthModal()">Войти</button>
+            
+            <div id="headerProfile" style="display: none;">
+                <div class="user-profile-btn" onclick="toggleUserDropdown(event)">
+                    <img src="" id="topUserAvatar" class="user-avatar" alt="User">
+                    <span id="topUserName" class="user-name">User</span>
+                    <i class="fa-solid fa-chevron-down" style="font-size: 12px; margin-left: 5px; color: #00f0ff;"></i>
+                </div>
+                
+                <div class="user-dropdown-menu" id="userDropdownMenu">
+                    <a class="dropdown-item" onclick="changeAvatarPrompt()"><i class="fa-solid fa-image"></i> Выбрать аватарку</a>
+                    <a class="dropdown-item" href="#"><i class="fa-solid fa-gear"></i> Настройки профиля</a>
+                    <div class="dropdown-divider"></div>
+                    <a class="dropdown-item logout" onclick="userLogout()"><i class="fa-solid fa-right-from-bracket"></i> Выйти из аккаунта</a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- 1. ГЛАВНАЯ СТРАНИЦА И КАТАЛОГ -->
+    <div id="pageMain" class="page-view active">
+        <main class="hero-section">
+            <div class="hero-content">
+                <span class="badge">Топ хит сезона</span>
+                <h1 class="hero-title">Атака титанов</h1>
+                <p class="hero-description">
+                    Все 4 сезона и 94 серии в полном объёме! Погрузись в культовую историю Эрена Йегера и борьбы человечества за выживание.
+                </p>
+                <div style="display: flex; gap: 15px;">
+                    <button class="btn btn-primary" onclick="openStory('attack-on-titan')"><i class="fa-solid fa-play"></i> Смотреть сериал</button>
+                    <button class="btn btn-bookmark-hero" id="heroBookmarkBtn" onclick="toggleBookmark('attack-on-titan', event)"><i class="fa-solid fa-bookmark"></i> <span id="heroBookmarkText">В закладки</span></button>
+                </div>
+            </div>
+            <div class="neon-hero-card" onclick="openStory('attack-on-titan')">
+                <img src="AttackOnTitan.1.jpg" alt="Attack on Titan" onerror="this.src='https://via.placeholder.com/320x450'">
+            </div>
+        </main>
+
+        <section class="content-section" id="catalogSection">
+            <h2 class="section-title"><i class="fa-solid fa-fire" style="color: #00f0ff;"></i> Каталог Тайтлов (Все 47)</h2>
+            <div class="anime-grid" id="animeGrid"></div>
+        </section>
+    </div>
+
+    <!-- 2. СТРАНИЦА ЗАКЛАДОК -->
+    <div id="pageBookmarks" class="page-view">
+        <main class="content-section">
+            <h1 class="section-title"><i class="fa-solid fa-bookmark" style="color: #00f0ff;"></i> Мои Закладки</h1>
+            <div class="anime-grid" id="bookmarksGrid"></div>
+            <p id="emptyBookmarksText" style="display:none; color: #94a3b8; font-size: 16px; margin-top: 20px;">
+                У вас пока нет сохранённых аниме. Добавляйте их из каталога или топа!
+            </p>
+        </main>
+    </div>
+
+    <!-- 3. СТРАНИЦА ТОП 100 -->
+    <div id="pageTop100" class="page-view">
+        <main class="content-section">
+            <h1 class="section-title"><i class="fa-solid fa-trophy" style="color: #ffd700;"></i> Топ 100 Аниме всех времён</h1>
+            <div class="top100-list" id="top100List"></div>
+        </main>
+    </div>
+
+    <!-- 4. СТРАНИЦА СМОТРЕТЬ / ПЛЕЕР -->
+    <div id="pageStory" class="page-view">
+        <main class="details-container">
+            <div class="details-hero">
+                <img id="detailImage" src="" alt="Poster" class="details-img">
+                <div class="details-info">
+                    <h1 id="detailTitle">...</h1>
+                    <p class="genre-tag" id="detailGenre">...</p>
+                    <p id="detailDesc" style="color: #94a3b8; line-height: 1.5; margin-bottom: 20px;"></p>
+                    <button class="btn btn-primary" id="detailBookmarkBtn" onclick="toggleCurrentStoryBookmark()">
+                        <i class="fa-solid fa-bookmark"></i> <span id="detailBookmarkText">В закладки</span>
+                    </button>
+                </div>
+            </div>
+
+            <section>
+                <h2 class="section-title"><i class="fa-solid fa-circle-play"></i> Онлайн Просмотр</h2>
+                <div class="video-player-container">
+                    <video id="mp4VideoPlayer" controls playsinline>
+                        Ваш браузер не поддерживает встроенное видео MP4.
+                    </video>
+                </div>
+
+                <div class="player-controls-bar">
+                    <div class="control-group">
+                        <label style="font-weight: bold;"><i class="fa-solid fa-layer-group"></i> Сезон:</label>
+                        <select id="seasonSelect" class="custom-select" onchange="changeSeason()"></select>
+                    </div>
+
+                    <div class="control-group">
+                        <label style="font-weight: bold;"><i class="fa-solid fa-sliders"></i> Качество:</label>
+                        <select id="qualitySelect" class="custom-select" onchange="changeQuality()">
+                            <option value="1080">1080p Ultra HD</option>
+                            <option value="720" selected>720p HD</option>
+                            <option value="480">480p SD</option>
+                            <option value="360">360p Low</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div>
+                    <h3 style="margin-bottom: 12px; color: #94a3b8; font-size: 15px;">Выберите серию:</h3>
+                    <div class="episodes-bar" id="episodesList"></div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- GSAP: тайминг анимаций появления/перехода между страницами -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+    <script src="anime.js"></script>
+    <script src="effects.js"></script>
+</body>
+</html>
